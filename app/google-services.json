@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "463602161631",
+    "project_id": "projektkoncowy-ef0b8",
+    "storage_bucket": "projektkoncowy-ef0b8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:463602161631:android:181876a121b3a32a16d66a",
+        "android_client_info": {
+          "package_name": "com.example.projekt_koncowy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCijLK8k9V0gm3iwmOrC66lNE7U7XQZEXE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
