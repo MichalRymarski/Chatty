@@ -1,0 +1,113 @@
+package com.example.projekt_koncowy
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.google.firebase.auth.FirebaseAuth
+
+
+class LoginScreen {
+
+    @Composable
+    fun LoginScreenUI(){
+        val email = remember { mutableStateOf("") }
+        val password = remember { mutableStateOf("") }
+
+        Surface(
+            modifier = Modifier.fillMaxSize()
+
+        ){
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+
+            ) {
+                Text(text = "Zaloguj się", fontSize = 30.sp)
+                TextField(
+                    value = email.value,
+                    modifier = Modifier.padding(16.dp).clip(shape = RoundedCornerShape(40.dp)),
+                    label = { Text(text = "Email", fontSize = 19.sp) },
+                    onValueChange ={
+                        email.value = it
+                    }
+                )
+
+                TextField(
+                    value = password.value,
+                    modifier = Modifier.padding(16.dp).clip(shape = RoundedCornerShape(40.dp)),
+                    label = { Text(text = "Hasło", fontSize = 19.sp) },
+                    onValueChange ={
+                        password.value = it
+                    }
+                )
+
+                Button(
+                    modifier = Modifier.padding(16.dp),
+                    onClick = {
+                       signIn(email , password)
+                }) {
+                    Text(text = "Zaloguj", fontSize = 20.sp)
+                }
+
+                Box(
+                    modifier = Modifier
+                        .wrapContentSize(Alignment.Center)
+                        .clip(shape = RoundedCornerShape(40.dp))
+                        .background(Color.LightGray)
+                ) {
+                    Text(text = "Nie masz konta?" , fontSize = 20.sp)
+                }
+
+                Button(
+                    modifier = Modifier.padding(16.dp),
+                    onClick = {
+                    //nawiguj do ekranu rejestracji
+                }) {
+                    Text(text = "Zarejestruj", fontSize = 20.sp)
+                }
+
+
+
+            }
+        }
+
+    }
+
+    private fun signIn(email: MutableState<String> , password: MutableState<String>){
+        val auth: FirebaseAuth = FirestoreAuth().auth
+        auth.signInWithEmailAndPassword(email.value, password.value).addOnSuccessListener {
+            //navigate to conversation
+        }.addOnFailureListener{
+            //popup warning to user
+
+        }
+    }
+
+
+    @Preview
+    @Composable
+    fun LoginScreenUIPreview(){
+        LoginScreenUI()
+    }
+}
