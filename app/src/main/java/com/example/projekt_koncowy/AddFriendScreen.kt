@@ -106,15 +106,19 @@ class AddFriendScreen {
                 val currentUserNick = FirestoreAuth().getCurrentUserNick()
 
                 if (!checkIfFriendExist(name, currentUserNick)) {
-
                         Firebase.firestore.collection("profile")
                                 .whereEqualTo("nick", name)
                                 .get()
                                 .addOnSuccessListener { documents ->
+                                        for (document in documents) {
 
+
+
+                                        }
                                 }
                 }
         }
+
 
         private fun checkIfFriendExist(name : String, user : String? ) : Boolean{
 

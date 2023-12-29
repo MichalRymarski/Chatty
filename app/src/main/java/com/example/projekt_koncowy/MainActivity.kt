@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             Surface {
-                AddFriendScreen().AddFriendScreenUI()
+                ChatScreen().startChatScreenUI("","")
             }
         }
 
