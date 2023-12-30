@@ -18,12 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-class FriendListScreen {
+class FriendListScreen(private val navController: NavHostController) {
 
     var contactList = mutableStateOf(listOf<String>())
 
@@ -48,7 +48,7 @@ class FriendListScreen {
                            .weight(1f)
                            .fillMaxSize(),
                        onClick = {
-                       //Navigate to HERE
+                           //"Navigate" to HERE
                    }) {
                        Text(text = "Kontakty")
                    }
@@ -58,7 +58,7 @@ class FriendListScreen {
                             .weight(1f)
                             .fillMaxSize(),
                         onClick = {
-                        //NAVIGATE TO AWAITING FOR ACCEPTANCE
+                         navController.navigate("awaitingList")
                     }){
                         Text(text = "Oczekujące")
                     }
@@ -68,7 +68,7 @@ class FriendListScreen {
                             .fillMaxSize(),
 
                         onClick = {
-                        //NAVIGATE TO ADD FRIEND
+                        navController.navigate("addFriend")
                     }){
                         Text(text = "Dodaj")
                     }
@@ -86,7 +86,8 @@ class FriendListScreen {
                                 .padding(6.dp),
 
                             onClick = {
-                            //NAVIGATE TO CHAT
+                                navController.navigate("chat/${FirestoreAuth.currentUserNick}/${contactList.value[index]}")
+
                         }) {
                             Text(text = contactList.value[index])
                         }
@@ -101,7 +102,7 @@ class FriendListScreen {
 
     private fun refreshList() {
         Firebase.firestore.collection("profile")
-            .whereEqualTo("email", FirestoreAuth().getCurrentUser())
+            .whereEqualTo("email", FirestoreAuth.currentUserMail)
             .get()
             .addOnSuccessListener { documents ->
                 val newContactList = mutableListOf<String>()
@@ -122,9 +123,5 @@ class FriendListScreen {
             }
     }
 
-    @Preview
-    @Composable
-    fun PreviewFriendListScreenUI() {
-        FriendListScreenUI()
-    }
+
 }

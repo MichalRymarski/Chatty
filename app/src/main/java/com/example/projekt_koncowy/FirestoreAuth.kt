@@ -4,27 +4,42 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
-class FirestoreAuth {
+object  FirestoreAuth {
     val auth: FirebaseAuth = Firebase.auth
     private val currentUser = auth.currentUser
+    val currentUserMail = getCurrentUserEmailFirestore()
+    var currentUserNick : String? = null
 
-    fun getCurrentUser(): String? {
+
+    private fun getCurrentUserEmailFirestore(): String? {
         return currentUser?.email
     }
 
-    fun getCurrentUserNick(): String? {
-        var currentUserNick : String? = null
-        Firebase.firestore.collection("profile")
-            .whereEqualTo("email",FirestoreAuth().getCurrentUser())
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    currentUserNick = document.data["nick"] as String
-                }
+    suspend fun setCurrentUserNickFirestore(): Boolean = withContext(Dispatchers.IO) {
+        var tempNick: String? = null
+
+        try {
+            val querySnapshot = Firebase.firestore.collection("profile")
+                .whereEqualTo("email", currentUserMail)
+                .get()
+                .await()
+
+            for (document in querySnapshot.documents) {
+                tempNick = document.getString("nick")
             }
 
-        return currentUserNick
+            currentUserNick = tempNick
+
+            true // Return true after setting currentUserNick
+        } catch (e: Exception) {
+            // Handle any exceptions here, and return false to indicate failure
+            e.printStackTrace()
+            false
+        }
     }
 
 

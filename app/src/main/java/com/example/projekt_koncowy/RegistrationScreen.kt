@@ -16,20 +16,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-class RegistrationScreen {
+class RegistrationScreen(private val navController: NavHostController) {
 
     @Composable
     fun RegistrationScreenUI() {
         val email = remember { mutableStateOf("") }
         val password = remember { mutableStateOf("") }
         val nick = remember { mutableStateOf("") }
+
 
         Surface(
             modifier = Modifier.fillMaxSize()
@@ -90,7 +91,7 @@ class RegistrationScreen {
 
 
         private fun signUp(email: MutableState<String> , password: MutableState<String>, nick: MutableState<String>) {
-            val auth: FirebaseAuth = FirestoreAuth().auth
+            val auth: FirebaseAuth = FirestoreAuth.auth
             auth.createUserWithEmailAndPassword(email.value , password.value).addOnSuccessListener {
                 Firebase.firestore.collection("profile")
                     .add(hashMapOf(
@@ -103,9 +104,5 @@ class RegistrationScreen {
             }
         }
 
-    @Preview
-    @Composable
-    fun RegistrationScreenUIPreview() {
-        RegistrationScreenUI()
-    }
+
 }

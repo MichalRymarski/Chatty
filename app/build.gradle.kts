@@ -54,9 +54,9 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-auth")
 
-    //recyclerview
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
-    implementation ("androidx.collection:collection:1.3.0")
+
+    //nawigacja
+    implementation ("androidx.navigation:navigation-compose:2.7.6")
 
 
     implementation("androidx.core:core-ktx:1.12.0")

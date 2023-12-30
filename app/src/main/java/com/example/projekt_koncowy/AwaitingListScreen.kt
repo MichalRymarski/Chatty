@@ -21,14 +21,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-class AwaitingListScreen {
+class AwaitingListScreen(private val navController: NavHostController) {
 
     var awaitingList = mutableStateOf(listOf<String>())
 
@@ -53,7 +53,7 @@ class AwaitingListScreen {
                             .weight(1f)
                             .fillMaxSize(),
                         onClick = {
-                            //Navigate to HERE
+                            navController.navigate("friendList")
                         }) {
                         Text(
                             text = "Kontakty",
@@ -79,7 +79,7 @@ class AwaitingListScreen {
                             .fillMaxSize(),
 
                         onClick = {
-                            //NAVIGATE TO ADD FRIEND
+                            navController.navigate("addFriend")
                         }){
                         Text(
                             text = "Dodaj",
@@ -136,7 +136,7 @@ class AwaitingListScreen {
     private fun addtoFriends(Nick : String){
 
         Firebase.firestore.collection("profile")
-            .whereEqualTo("email", FirestoreAuth().getCurrentUser())
+            .whereEqualTo("email", FirestoreAuth.currentUserMail)
             .get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
@@ -161,7 +161,7 @@ class AwaitingListScreen {
     }
     private fun refreshList() {
         Firebase.firestore.collection("profile")
-            .whereEqualTo("email", FirestoreAuth().getCurrentUser())
+            .whereEqualTo("email", FirestoreAuth.currentUserMail)
             .get()
             .addOnSuccessListener { documents ->
                 val newawaitingList = mutableListOf<String>()
@@ -182,9 +182,5 @@ class AwaitingListScreen {
             }
     }
 
-    @Preview
-    @Composable
-    fun PreviewAwaitingLIstScreenUI() {
-        AwaitingLIstScreenUI()
-    }
+
 }
