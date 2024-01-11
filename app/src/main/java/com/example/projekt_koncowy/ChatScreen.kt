@@ -33,21 +33,17 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class ChatScreen(private val navController: NavHostController , private var user: String? , private var friend: String) {
-
     private var messageList = mutableStateOf(listOf<String>())
 
     @Composable
     fun StartChatScreenUI() {
-
         setSnapshotListener()
         refreshList()
         ChatScreenUI()
     }
 
     private fun setSnapshotListener() {
-
         val db = Firebase.firestore
-
         db.collection("konwersacje")
             .whereArrayContainsAny("ziomki" , listOf(user , friend))
             .addSnapshotListener { value , error ->
@@ -62,23 +58,18 @@ class ChatScreen(private val navController: NavHostController , private var user
 
 
     private fun refreshList() {
-
         val db = Firebase.firestore
-
         db.collection("konwersacje")
             .whereArrayContainsAny("ziomki" , listOf(user , friend))
             .get()
             .addOnSuccessListener {
                 messageList.value = it.documents[0].get("wiadomosci") as List<String>
             }
-
     }
 
     @Composable
     fun ChatScreenUI() {
-
         val message = remember { mutableStateOf("") }
-
         Surface(
             modifier = Modifier
                 .fillMaxSize()
