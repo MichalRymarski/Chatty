@@ -28,68 +28,83 @@ class FriendListScreen(private val navController: NavHostController) {
 
     @Composable
     fun StartFriendListScreen() {
+        setSnapshotListener()
         refreshList()
         FriendListScreenUI()
+    }
+
+    private fun setSnapshotListener() {
+
+        val user = FirestoreAuth.currentUserNick
+
+        Firebase.firestore.collection("profile")
+            .document(user!!)
+            .addSnapshotListener { value , error ->
+                if (error != null) {
+                    return@addSnapshotListener
+                }
+                if (value != null && value.exists()) {
+                    contactList.value = value.get("friends") as List<String>
+                }
+            }
     }
 
     @Composable
     fun FriendListScreenUI() {
 
         Surface(
-          modifier = Modifier.fillMaxSize()
-        ){
-            Column{
-                Row (
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Column {
+                Row(
                     modifier = Modifier
                         .height(70.dp)
-                ){
-                   Button(
-                       modifier = Modifier
-                           .weight(1f)
-                           .fillMaxSize(),
-                       onClick = {
-                           //"Navigate" to HERE
-                   }) {
-                       Text(text = "Kontakty")
-                   }
+                ) {
+                    Button(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxSize() ,
+                        onClick = {
+                            //"Navigate" to HERE
+                        }) {
+                        Text(text = "Kontakty")
+                    }
 
                     Button(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxSize(),
+                            .fillMaxSize() ,
                         onClick = {
-                         navController.navigate("awaitingList")
-                    }){
+                            navController.navigate("awaitingList")
+                        }) {
                         Text(text = "Oczekujące")
                     }
                     Button(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxSize(),
+                            .fillMaxSize() ,
 
                         onClick = {
-                        navController.navigate("addFriend")
-                    }){
+                            navController.navigate("addFriend")
+                        }) {
                         Text(text = "Dodaj")
                     }
-
-
                 }
 
                 LazyColumn(content = {
                     items(contactList.value.size) { index ->
                         OutlinedButton(
-                            border = BorderStroke(1.dp, Color.Black),
-                            shape = RoundedCornerShape(50),
+                            border = BorderStroke(1.dp , Color.Black) ,
+                            shape = RoundedCornerShape(50) ,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(6.dp),
+                                .padding(6.dp) ,
 
                             onClick = {
 
                                 navController.navigate("chat/${FirestoreAuth.currentUserNick}/${contactList.value[index]}")
 
-                        }) {
+                            }) {
                             Text(text = contactList.value[index])
                         }
 
@@ -98,7 +113,7 @@ class FriendListScreen(private val navController: NavHostController) {
                 )
             }
         }
-        
+
     }
 
     private fun refreshList() {

@@ -11,16 +11,11 @@ import kotlinx.coroutines.withContext
 object  FirestoreAuth {
     val auth: FirebaseAuth = Firebase.auth
     private val currentUser = auth.currentUser
-    var currentUserMail = getCurrentUserEmailFirestore()
+    var currentUserMail = currentUser?.email.toString()
     var currentUserNick : String? = null
 
-
-    private fun getCurrentUserEmailFirestore(): String? {
-        return currentUser?.email
-    }
-
     suspend fun setCurrentUserNickFirestore(): Boolean = withContext(Dispatchers.IO) {
-        var tempNick: String? = null
+        var foundNick: String? = null
 
         try {
             val querySnapshot = Firebase.firestore.collection("profile")
@@ -29,14 +24,13 @@ object  FirestoreAuth {
                 .await()
 
             for (document in querySnapshot.documents) {
-                tempNick = document.getString("nick")
+                foundNick = document.getString("nick")
             }
 
-            currentUserNick = tempNick
+            currentUserNick = foundNick
 
-            true // Return true after setting currentUserNick
+            true
         } catch (e: Exception) {
-            // Handle any exceptions here, and return false to indicate failure
             e.printStackTrace()
             false
         }

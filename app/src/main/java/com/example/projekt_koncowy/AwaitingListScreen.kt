@@ -23,19 +23,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class AwaitingListScreen(private val navController: NavHostController) {
 
     private var awaitingList = mutableStateOf(listOf<String>())
-    
+
 
     @Composable
     fun StartAwaitingLIstScreen() {
+        setSnapshotListener()
         refreshAwaitingList()
         AwaitingLIstScreenUI()
+    }
+
+    private fun setSnapshotListener() {
+        val user = FirestoreAuth.currentUserNick
+        Firebase.firestore.collection("profile")
+            .document(user!!)
+            .addSnapshotListener { value , error ->
+                if (error != null) {
+                    return@addSnapshotListener
+                }
+                if (value != null && value.exists()) {
+                    awaitingList.value = value.get("oczekujace") as List<String>
+                }
+            }
     }
 
     @Composable
@@ -99,7 +113,6 @@ class AwaitingListScreen(private val navController: NavHostController) {
                                 .clip(shape = AbsoluteCutCornerShape(40.dp))
                                 .background(Color.LightGray)
 
-
                         ) {
                             Row(
                                 modifier = Modifier
@@ -119,10 +132,7 @@ class AwaitingListScreen(private val navController: NavHostController) {
                                     Text(text = "ADD")
                                 }
                             }
-
-
                         }
-
                     }
                 }
                 )
@@ -131,35 +141,10 @@ class AwaitingListScreen(private val navController: NavHostController) {
 
     }
 
-    private fun removeAwaitingAddFriend(nick: String) {
-
-        val user = FirestoreAuth.currentUserNick
-        val db = Firebase.firestore
-        val updates = mapOf(
-            "oczekujace" to FieldValue.arrayRemove(nick) ,
-            "friends" to FieldValue.arrayUnion(nick)
-        )
-
-        db.collection("profile").document(user!!)
-            .update(updates)
-            .addOnSuccessListener {
-                db.collection("profile").document(nick)
-                    .update("friends" , FieldValue.arrayUnion(user))
-            }
-            .addOnSuccessListener {
-                createChat(user , nick)
-            }
-            .addOnSuccessListener {
-                refreshAwaitingList()
-            }
-
-
-    }
-
     private fun refreshAwaitingList() {
         val user = FirestoreAuth.currentUserNick
         val db = Firebase.firestore
-        
+
         db.collection("profile").document(user!!)
             .get()
             .addOnSuccessListener {

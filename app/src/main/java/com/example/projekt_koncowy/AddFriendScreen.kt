@@ -24,7 +24,6 @@ import androidx.navigation.NavHostController
 
 class AddFriendScreen(private val navController: NavHostController) {
 
-
     @Composable
     fun AddFriendScreenUI() {
         val name = remember { mutableStateOf("") }
@@ -68,7 +67,6 @@ class AddFriendScreen(private val navController: NavHostController) {
                         Text(text = "Dodaj")
                     }
 
-
                 }
                 Row(
                     modifier = Modifier.padding(top = 30.dp) ,
@@ -96,10 +94,6 @@ class AddFriendScreen(private val navController: NavHostController) {
                     }
                 }
             }
-
         }
     }
-
-
-
 }

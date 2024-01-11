@@ -29,7 +29,6 @@ class RegistrationScreen(private val navController: NavHostController) {
         val password = remember { mutableStateOf("") }
         val nick = remember { mutableStateOf("") }
 
-
         Surface(
             modifier = Modifier.fillMaxSize()
 
@@ -79,8 +78,8 @@ class RegistrationScreen(private val navController: NavHostController) {
                     modifier = Modifier.padding(16.dp) ,
                     onClick = {
                         if (isSignUpDataCorrect(email , password , nick)) {
-                            signUp(email , password , nick, navController)
-                        }else{
+                            signUp(email , password , nick , navController)
+                        } else {
                             Toast.makeText(navController.context , "Niepoprawne dane" , Toast.LENGTH_SHORT).show()
                         }
                     }) {
@@ -91,15 +90,13 @@ class RegistrationScreen(private val navController: NavHostController) {
     }
 
     private fun isSignUpDataCorrect(email: MutableState<String> , password: MutableState<String> , nick: MutableState<String>): Boolean {
-        return listOf(email, password, nick).all { it.value.isNotBlank() } && isValidEmail(email.value) && password.value.length >= 6
+        return listOf(email , password , nick).all { it.value.isNotBlank() } && isValidEmail(email.value) && password.value.length >= 6
     }
 
     private fun isValidEmail(email: String): Boolean {
         val emailRegex = """^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$"""
         return Regex(emailRegex).matches(email)
     }
-
-
 
 }
 

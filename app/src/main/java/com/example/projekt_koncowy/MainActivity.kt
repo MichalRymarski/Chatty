@@ -15,15 +15,12 @@ class MainActivity : ComponentActivity() {
 
         runBlocking {
             launch {
-                val initFire = async {
+                val initAppAndNick = async {
                     FirebaseApp.initializeApp(this@MainActivity)
-                    FirestoreAuth.auth.signOut()
-                }
-                val intiNick = async {
                     FirestoreAuth.setCurrentUserNickFirestore()
                 }
 
-                if(intiNick.await()){
+                if(initAppAndNick.await()){
                     setContent {
                         Navigation().StartNavigation()
 
@@ -31,6 +28,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        FirestoreAuth.auth.signOut()
     }
 }
 

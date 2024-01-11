@@ -1,7 +1,6 @@
 package com.example.projekt_koncowy
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -34,7 +33,6 @@ import kotlinx.coroutines.runBlocking
 
 class LoginScreen(private val navController: NavHostController) {
 
-
     @Composable
     fun LoginScreenUI() {
         val email = remember { mutableStateOf("") }
@@ -42,13 +40,11 @@ class LoginScreen(private val navController: NavHostController) {
 
         Surface(
             modifier = Modifier.fillMaxSize()
-
         ) {
             Column(
                 modifier = Modifier.fillMaxSize() ,
                 verticalArrangement = Arrangement.Center ,
                 horizontalAlignment = Alignment.CenterHorizontally
-
             ) {
                 Text(text = "Zaloguj się" , fontSize = 30.sp)
                 TextField(
@@ -76,8 +72,8 @@ class LoginScreen(private val navController: NavHostController) {
                 Button(
                     modifier = Modifier.padding(16.dp) ,
                     onClick = {
-                        if(email.value != "" && password.value != ""){
-                        signIn(email , password)
+                        if (email.value != "" && password.value != "") {
+                            signIn(email , password)
                         }
                     }) {
                     Text(text = "Zaloguj" , fontSize = 20.sp)
@@ -101,10 +97,8 @@ class LoginScreen(private val navController: NavHostController) {
                     Text(text = "Zarejestruj" , fontSize = 20.sp)
                 }
 
-
             }
         }
-
     }
 
     @SuppressLint("SuspiciousIndentation")
@@ -112,23 +106,20 @@ class LoginScreen(private val navController: NavHostController) {
         val auth: FirebaseAuth = FirestoreAuth.auth
         auth.signInWithEmailAndPassword(email.value , password.value)
             .addOnSuccessListener {
-            FirestoreAuth.currentUserMail = email.value
+                FirestoreAuth.currentUserMail = email.value
                 runBlocking {
                     launch {
                         val intiNick = async {
                             FirestoreAuth.setCurrentUserNickFirestore()
                         }
-                        if(intiNick.await()){
+                        if (intiNick.await()) {
                             navController.navigate("friendList")
                         }
                     }
-                    }
-
-            Log.d("LoginScreen" , "signInWithEmail:success")
-            Log.d("LoginScreen" , "${auth.currentUser?.email}")
-        }.addOnFailureListener {
-            Toast.makeText(navController.context , "Niepoprawne dane" , Toast.LENGTH_SHORT).show()
-        }
+                }
+            }.addOnFailureListener {
+                Toast.makeText(navController.context , "Niepoprawne dane" , Toast.LENGTH_SHORT).show()
+            }
     }
 
 

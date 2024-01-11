@@ -39,38 +39,37 @@ class ChatScreen(private val navController: NavHostController , private var user
     @Composable
     fun StartChatScreenUI() {
 
+        setSnapshotListener()
         refreshList()
         ChatScreenUI()
-
-
     }
 
+    private fun setSnapshotListener() {
 
+        val db = Firebase.firestore
 
-
-    private fun sendMessage(message: String) {
-
-        messageList.value = messageList.value + message
-
-        Firebase.firestore.collection("konwersacje")
-            .document("${user}${friend}")
-            .set(
-                hashMapOf(
-                    "wiadomosci" to messageList.value
-                )
-            )
+        db.collection("konwersacje")
+            .whereArrayContainsAny("ziomki" , listOf(user , friend))
+            .addSnapshotListener { value , error ->
+                if (error != null) {
+                    return@addSnapshotListener
+                }
+                if (value != null) {
+                    messageList.value = value.documents[0].get("wiadomosci") as List<String>
+                }
+            }
     }
+
 
     private fun refreshList() {
-        Firebase.firestore.collection("konwersacje")
-            .document("${user}${friend}")
+
+        val db = Firebase.firestore
+
+        db.collection("konwersacje")
+            .whereArrayContainsAny("ziomki" , listOf(user , friend))
             .get()
             .addOnSuccessListener {
-                if (it.exists()) {
-                    messageList.value = it.get("wiadomosci") as List<String>
-                }else{
-                    messageList.value = listOf<String>()
-                }
+                messageList.value = it.documents[0].get("wiadomosci") as List<String>
             }
 
     }
@@ -78,15 +77,12 @@ class ChatScreen(private val navController: NavHostController , private var user
     @Composable
     fun ChatScreenUI() {
 
-
         val message = remember { mutableStateOf("") }
-
 
         Surface(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White) ,
-
             ) {
             Column {
                 Row {
@@ -98,10 +94,9 @@ class ChatScreen(private val navController: NavHostController , private var user
                             navController.navigate("friendList")
                         }) {
                         Icon(
-                            modifier = Modifier.fillMaxSize(),
-                            painter =  painterResource(id = R.drawable.back),
-                            contentDescription = "",
-
+                            modifier = Modifier.fillMaxSize() ,
+                            painter = painterResource(id = R.drawable.back) ,
+                            contentDescription = "" ,
                             )
                     }
                     Box(
@@ -113,7 +108,7 @@ class ChatScreen(private val navController: NavHostController , private var user
                             .background(Color.LightGray)
                     ) {
                         Text(
-                            text = "$friend" ,
+                            text = friend ,
                             fontSize = 30.sp ,
                             modifier = Modifier.padding(start = 20.dp)
                         )
@@ -127,10 +122,10 @@ class ChatScreen(private val navController: NavHostController , private var user
                         items(messageList.value.size) { index ->
                             if (messageList.value[index].startsWith(friend)) {
 
-                                Row (
+                                Row(
                                     modifier = Modifier.fillMaxWidth() ,
                                     horizontalArrangement = Arrangement.Start
-                                ){
+                                ) {
                                     Box(
                                         modifier = Modifier
                                             .padding(top = 6.dp , bottom = 6.dp , start = 6.dp)
@@ -138,7 +133,6 @@ class ChatScreen(private val navController: NavHostController , private var user
                                             .wrapContentHeight()
                                             .clip(shape = RoundedCornerShape(40.dp))
                                             .background(Color.LightGray)
-
                                     ) {
                                         Text(
                                             text = messageList.value[index] ,
@@ -149,10 +143,10 @@ class ChatScreen(private val navController: NavHostController , private var user
                                 }
 
                             } else {
-                                Row (
+                                Row(
                                     modifier = Modifier.fillMaxWidth() ,
                                     horizontalArrangement = Arrangement.End
-                                ){
+                                ) {
                                     Box(
                                         modifier = Modifier
                                             .padding(top = 6.dp , bottom = 6.dp , end = 6.dp)
@@ -160,7 +154,6 @@ class ChatScreen(private val navController: NavHostController , private var user
                                             .wrapContentHeight()
                                             .clip(shape = RoundedCornerShape(40.dp))
                                             .background(Color.Cyan)
-
                                     ) {
                                         Text(
                                             text = messageList.value[index] ,
@@ -203,18 +196,18 @@ class ChatScreen(private val navController: NavHostController , private var user
                 Button(
                     modifier = Modifier
                         .weight(1f)
-                        .height(60.dp),
+                        .height(60.dp) ,
                     onClick = {
-                        if ( message.value.isNotBlank()) {
+                        if (message.value.isNotBlank()) {
                             val temp = "$user: ${message.value}"
-                            sendMessage(temp)
+                            sendMessage(temp , user!! , friend)
                             message.value = ""
                         }
                     }) {
                     Icon(
-                        modifier = Modifier.fillMaxSize(),
-                        painter =  painterResource(id = R.drawable.send),
-                        contentDescription = "",
+                        modifier = Modifier.fillMaxSize() ,
+                        painter = painterResource(id = R.drawable.send) ,
+                        contentDescription = "" ,
                     )
 
                 }
