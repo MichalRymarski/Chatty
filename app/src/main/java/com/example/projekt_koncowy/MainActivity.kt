@@ -9,10 +9,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         runBlocking {
             launch {
                 val initAppAndNick = async {
@@ -23,7 +21,6 @@ class MainActivity : ComponentActivity() {
                 if(initAppAndNick.await()){
                     setContent {
                         Navigation().StartNavigation()
-
                     }
                 }
             }

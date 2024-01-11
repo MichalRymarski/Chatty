@@ -127,7 +127,7 @@ class AwaitingListScreen(private val navController: NavHostController) {
                                 )
                                 Button(shape = AbsoluteCutCornerShape(40.dp) ,
                                     onClick = {
-                                        removeAwaitingAddFriend(awaitingList.value[index])
+                                        Firestore().removeAwaitingAddFriend(awaitingList.value[index])
                                     }) {
                                     Text(text = "ADD")
                                 }

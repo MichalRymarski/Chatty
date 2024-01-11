@@ -200,7 +200,7 @@ class ChatScreen(private val navController: NavHostController , private var user
                     onClick = {
                         if (message.value.isNotBlank()) {
                             val temp = "$user: ${message.value}"
-                            sendMessage(temp , user!! , friend)
+                            Firestore().sendMessage(temp , user!! , friend)
                             message.value = ""
                         }
                     }) {

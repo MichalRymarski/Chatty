@@ -32,7 +32,6 @@ import kotlinx.coroutines.runBlocking
 
 
 class LoginScreen(private val navController: NavHostController) {
-
     @Composable
     fun LoginScreenUI() {
         val email = remember { mutableStateOf("") }
@@ -107,19 +106,24 @@ class LoginScreen(private val navController: NavHostController) {
         auth.signInWithEmailAndPassword(email.value , password.value)
             .addOnSuccessListener {
                 FirestoreAuth.currentUserMail = email.value
-                runBlocking {
-                    launch {
-                        val intiNick = async {
-                            FirestoreAuth.setCurrentUserNickFirestore()
-                        }
-                        if (intiNick.await()) {
-                            navController.navigate("friendList")
-                        }
-                    }
-                }
+            }.addOnSuccessListener {
+                completeSignIn()
             }.addOnFailureListener {
                 Toast.makeText(navController.context , "Niepoprawne dane" , Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun completeSignIn() {
+        runBlocking {
+            launch {
+                val intiNick = async {
+                    FirestoreAuth.setCurrentUserNickFirestore()
+                }
+                if (intiNick.await()) {
+                    navController.navigate("friendList")
+                }
+            }
+        }
     }
 
 

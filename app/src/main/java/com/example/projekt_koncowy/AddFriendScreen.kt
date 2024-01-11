@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 
 class AddFriendScreen(private val navController: NavHostController) {
-
     @Composable
     fun AddFriendScreenUI() {
         val name = remember { mutableStateOf("") }
@@ -87,7 +86,7 @@ class AddFriendScreen(private val navController: NavHostController) {
                             .height(50.dp) ,
                         onClick = {
                             if (name.value.isNotBlank())
-                                addFriend(name.value)
+                                Firestore().addFriend(name.value)
                         }
                     ) {
                         Text(text = "Dodaj")

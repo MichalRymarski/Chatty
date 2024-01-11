@@ -24,7 +24,9 @@ import com.google.firebase.ktx.Firebase
 
 class FriendListScreen(private val navController: NavHostController) {
 
-    var contactList = mutableStateOf(listOf<String>())
+    private var contactList = mutableStateOf(listOf<String>())
+    private val user = FirestoreAuth.currentUserNick
+    private val docRef = Firebase.firestore.collection("profile").document(user!!)
 
     @Composable
     fun StartFriendListScreen() {
@@ -34,18 +36,20 @@ class FriendListScreen(private val navController: NavHostController) {
     }
 
     private fun setSnapshotListener() {
+        docRef.addSnapshotListener { value , error ->
+            if (error != null) {
+                return@addSnapshotListener
+            }
+            if (value != null && value.exists()) {
+                contactList.value = value.get("friends") as List<String>
+            }
+        }
+    }
 
-        val user = FirestoreAuth.currentUserNick
-
-        Firebase.firestore.collection("profile")
-            .document(user!!)
-            .addSnapshotListener { value , error ->
-                if (error != null) {
-                    return@addSnapshotListener
-                }
-                if (value != null && value.exists()) {
-                    contactList.value = value.get("friends") as List<String>
-                }
+    private fun refreshList() {
+        docRef.get()
+            .addOnSuccessListener {
+                contactList.value = it.get("friends") as List<String>
             }
     }
 
@@ -101,29 +105,17 @@ class FriendListScreen(private val navController: NavHostController) {
                                 .padding(6.dp) ,
 
                             onClick = {
-
-                                navController.navigate("chat/${FirestoreAuth.currentUserNick}/${contactList.value[index]}")
-
+                                val user = FirestoreAuth.currentUserNick
+                                val friend = contactList.value[index]
+                                navController.navigate("chat/${user}/${friend}")
                             }) {
                             Text(text = contactList.value[index])
                         }
-
                     }
                 }
                 )
+
             }
         }
-
     }
-
-    private fun refreshList() {
-        Firebase.firestore.collection("profile")
-            .document("${FirestoreAuth.currentUserNick}")
-            .get()
-            .addOnSuccessListener {
-                contactList.value = it.get("friends") as List<String>
-            }
-    }
-
-
 }
