@@ -60,9 +60,10 @@ class Firestore {
         ziomkiList.add(user)
         val temp = mutableListOf<String>()
         temp.add("$user: Cześć")
+        val docRef = db.collection("konwersacje").document("${user}${friend}")
 
-        db.collection("konwersacje").document("${user}${friend}")
-            .set(
+
+        docRef.set(
                 hashMapOf(
                     "wiadomosci" to temp ,
                     "ziomki" to ziomkiList
@@ -84,6 +85,7 @@ class Firestore {
             "oczekujace" to listOf<String>()
         )
         val auth: FirebaseAuth = FirestoreAuth.auth
+
         auth.createUserWithEmailAndPassword(email.value , password.value)
             .addOnSuccessListener {
                 addProfileDataToFirebase(nick , profileData , navController)

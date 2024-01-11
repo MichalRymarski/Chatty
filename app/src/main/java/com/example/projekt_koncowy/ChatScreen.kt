@@ -34,6 +34,7 @@ import com.google.firebase.ktx.Firebase
 
 class ChatScreen(private val navController: NavHostController , private var user: String? , private var friend: String) {
     private var messageList = mutableStateOf(listOf<String>())
+    private val db = Firebase.firestore
 
     @Composable
     fun StartChatScreenUI() {
@@ -43,7 +44,6 @@ class ChatScreen(private val navController: NavHostController , private var user
     }
 
     private fun setSnapshotListener() {
-        val db = Firebase.firestore
         db.collection("konwersacje")
             .whereArrayContainsAny("ziomki" , listOf(user , friend))
             .addSnapshotListener { value , error ->
