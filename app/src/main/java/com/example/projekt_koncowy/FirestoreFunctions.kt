@@ -8,63 +8,22 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-fun addFriend(name: String) {
+fun addFriend(nick: String) {
 
     val currentUserNick = FirestoreAuth.currentUserNick
+    val db = Firebase.firestore
 
-
-    if (!checkIfFriendExist(name , currentUserNick) && !isFriendYou(name , currentUserNick)) {
-        val docRef = Firebase.firestore.collection("profile")
-        val FIND_NICK_QUERY = docRef
-            .whereEqualTo("nick" , name)
-            .get()
-            .addOnSuccessListener {
-                it.documents.map { doc ->
-                    doc.reference.update("oczekujace" , FieldValue.arrayUnion(currentUserNick))
-                }
-            }
-    }
-}
-
-fun checkIfFriendExist(name: String , user: String?): Boolean {
-
-    val nick = FirestoreAuth.currentUserNick
-
-    var flag: Boolean = false
-    Firebase.firestore.collection("profile")
-        .whereEqualTo("email" , FirestoreAuth.currentUserMail)
-        .get()
-        .addOnSuccessListener { documents ->
-            for (document in documents) {
-                if (document.data["friends"] != null) {
-                    val friends = document.data["friends"] as List<String>
-                    for (friend in friends) {
-                        if (friend == name)
-                            flag = true
-                    }
-                }
-                if (document.data["oczekujace"] != null) {
-                    val awaiting = document.data["oczekujace"] as List<String>
-                    for (awaited in awaiting) {
-                        if (awaited == name)
-                            flag = true
-                    }
-                }
-            }
+    db.collection("profile").document(nick)
+        .update("oczekujace" , FieldValue.arrayUnion(currentUserNick))
+        .addOnSuccessListener {
+            Log.d("FriendListScreen" , "Dodano do oczekujacych")
         }
-    return flag
+
 
 }
 
-fun isFriendYou(name: String , user: String?): Boolean {
-    var flag: Boolean = false
-    if (name == user) {
-        flag = true
-    }
-    return flag
-}
 
- fun createChat(user: String , friend: String) {
+fun createChat(user: String , friend: String) {
     val temp = mutableListOf<String>()
     temp.add("$user: Cześć")
     Firebase.firestore.collection("konwersacje").document("${user}${friend}")
@@ -74,6 +33,7 @@ fun isFriendYou(name: String , user: String?): Boolean {
             )
         )
 }
+
 fun signUp(email: MutableState<String> , password: MutableState<String> , nick: MutableState<String> , navController: NavHostController) {
     val auth: FirebaseAuth = FirestoreAuth.auth
     auth.createUserWithEmailAndPassword(email.value , password.value).addOnSuccessListener {
@@ -90,8 +50,8 @@ fun signUp(email: MutableState<String> , password: MutableState<String> , nick: 
                 FirestoreAuth.currentUserNick = nick.value
                 navController.navigate("friendList")
             }
-    }.addOnFailureListener{
-        Log.d("RegistrationScreen", "Nie udalo sie zarejestrowac${it.message}")
+    }.addOnFailureListener {
+        Log.d("RegistrationScreen" , "Nie udalo sie zarejestrowac${it.message}")
     }
 }
 

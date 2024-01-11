@@ -1,5 +1,6 @@
 package com.example.projekt_koncowy
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -106,6 +107,7 @@ class LoginScreen(private val navController: NavHostController) {
 
     }
 
+    @SuppressLint("SuspiciousIndentation")
     private fun signIn(email: MutableState<String> , password: MutableState<String>) {
         val auth: FirebaseAuth = FirestoreAuth.auth
         auth.signInWithEmailAndPassword(email.value , password.value)

@@ -27,7 +27,7 @@ class FriendListScreen(private val navController: NavHostController) {
     var contactList = mutableStateOf(listOf<String>())
 
     @Composable
-    fun startFriendListScreen() {
+    fun StartFriendListScreen() {
         refreshList()
         FriendListScreenUI()
     }

@@ -33,7 +33,7 @@ class AwaitingListScreen(private val navController: NavHostController) {
     
 
     @Composable
-    fun startAwaitingLIstScreen() {
+    fun StartAwaitingLIstScreen() {
         refreshAwaitingList()
         AwaitingLIstScreenUI()
     }

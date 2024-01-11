@@ -32,7 +32,7 @@ class AddFriendScreen(private val navController: NavHostController) {
         Surface(
             modifier = Modifier.fillMaxSize()
         ) {
-            Column() {
+            Column {
                 Row(
                     modifier = Modifier
                         .height(70.dp)
@@ -88,7 +88,7 @@ class AddFriendScreen(private val navController: NavHostController) {
                             .weight(1f)
                             .height(50.dp) ,
                         onClick = {
-                            if (name.value != "")
+                            if (name.value.isNotBlank())
                                 addFriend(name.value)
                         }
                     ) {
