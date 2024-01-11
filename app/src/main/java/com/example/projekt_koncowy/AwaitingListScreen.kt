@@ -1,6 +1,5 @@
 package com.example.projekt_koncowy
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,11 +29,12 @@ import com.google.firebase.ktx.Firebase
 
 class AwaitingListScreen(private val navController: NavHostController) {
 
-    var awaitingList = mutableStateOf(listOf<String>())
+    private var awaitingList = mutableStateOf(listOf<String>())
+    
 
     @Composable
     fun startAwaitingLIstScreen() {
-        refreshList()
+        refreshAwaitingList()
         AwaitingLIstScreenUI()
     }
 
@@ -42,21 +42,21 @@ class AwaitingListScreen(private val navController: NavHostController) {
     fun AwaitingLIstScreenUI() {
         Surface(
             modifier = Modifier.fillMaxSize()
-        ){
-            Column{
-                Row (
+        ) {
+            Column {
+                Row(
                     modifier = Modifier
                         .height(70.dp)
-                ){
+                ) {
                     Button(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxSize(),
+                            .fillMaxSize() ,
                         onClick = {
                             navController.navigate("friendList")
                         }) {
                         Text(
-                            text = "Kontakty",
+                            text = "Kontakty" ,
                             fontSize = 15.sp
                         )
                     }
@@ -64,25 +64,25 @@ class AwaitingListScreen(private val navController: NavHostController) {
                     Button(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxSize(),
+                            .fillMaxSize() ,
                         onClick = {
                             //NAVIGATE TO AWAITING FOR ACCEPTANCE
-                        }){
+                        }) {
                         Text(
-                            text = "Oczekujące",
+                            text = "Oczekujące" ,
                             fontSize = 15.sp
                         )
                     }
                     Button(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxSize(),
+                            .fillMaxSize() ,
 
                         onClick = {
                             navController.navigate("addFriend")
-                        }){
+                        }) {
                         Text(
-                            text = "Dodaj",
+                            text = "Dodaj" ,
                             fontSize = 15.sp
                         )
                     }
@@ -101,26 +101,24 @@ class AwaitingListScreen(private val navController: NavHostController) {
 
 
                         ) {
-                            Row (
+                            Row(
                                 modifier = Modifier
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
+                                    .fillMaxWidth() ,
+                                horizontalArrangement = Arrangement.SpaceBetween ,
                                 verticalAlignment = Alignment.CenterVertically
-                            ){
+                            ) {
                                 Text(
-                                    text = awaitingList.value[index],
-                                    modifier = Modifier.padding(start = 20.dp),
+                                    text = awaitingList.value[index] ,
+                                    modifier = Modifier.padding(start = 20.dp) ,
                                     fontSize = 20.sp
-                                    )
-                                Button(shape = AbsoluteCutCornerShape(40.dp),
+                                )
+                                Button(shape = AbsoluteCutCornerShape(40.dp) ,
                                     onClick = {
-                                        addtoFriends(awaitingList.value[index])
-                                }) {
+                                        removeAwaitingAddFriend(awaitingList.value[index])
+                                    }) {
                                     Text(text = "ADD")
                                 }
                             }
-
-
 
 
                         }
@@ -133,52 +131,40 @@ class AwaitingListScreen(private val navController: NavHostController) {
 
     }
 
-    private fun addtoFriends(Nick : String){
+    private fun removeAwaitingAddFriend(nick: String) {
 
-        Firebase.firestore.collection("profile")
-            .whereEqualTo("email", FirestoreAuth.currentUserMail)
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    val friendsData = document.data["oczekujace"]
-                    if (friendsData is List<*>) {
-                        for (data in friendsData) {
-                            if(data.toString() == Nick){
-                                Firebase.firestore.collection("profile").document(document.id).update("oczekujace", FieldValue.arrayRemove(Nick))
-                                Firebase.firestore.collection("profile").document(document.id).update("friends", FieldValue.arrayUnion(Nick))
-                            }
-                        }
-                    }
-                }
-            }.addOnSuccessListener {
-                refreshList()
+        val user = FirestoreAuth.currentUserNick
+        val db = Firebase.firestore
+        val updates = mapOf(
+            "oczekujace" to FieldValue.arrayRemove(nick) ,
+            "friends" to FieldValue.arrayUnion(nick)
+        )
+
+        db.collection("profile").document(user!!)
+            .update(updates)
+            .addOnSuccessListener {
+                db.collection("profile").document(nick)
+                    .update("friends" , FieldValue.arrayUnion(user))
             }
-
-
-
+            .addOnSuccessListener {
+                createChat(user , nick)
+            }
+            .addOnSuccessListener {
+                refreshAwaitingList()
+            }
 
 
     }
-    private fun refreshList() {
-        Firebase.firestore.collection("profile")
-            .whereEqualTo("email", FirestoreAuth.currentUserMail)
+
+    private fun refreshAwaitingList() {
+        val user = FirestoreAuth.currentUserNick
+        val db = Firebase.firestore
+        
+        db.collection("profile").document(user!!)
             .get()
-            .addOnSuccessListener { documents ->
-                val newawaitingList = mutableListOf<String>()
-                for (document in documents) {
-                    val friendsData = document.data["oczekujace"]
-                    if (friendsData is List<*>) {
-                        for (data in friendsData) {
-                            newawaitingList.add(data.toString())
-                        }
-                    }
-                }
-                awaitingList.value = newawaitingList
-            }
-            .addOnFailureListener {
-                Log.d("AwaitingLIstScreen", "Nie udalo sie pobrac")
-            }.addOnCompleteListener {
-                Log.d("AwaitingLIstScreen", "awaitingList: ${awaitingList.value}")
+            .addOnSuccessListener {
+                val list = it.get("oczekujace") as List<String>
+                awaitingList.value = list
             }
     }
 

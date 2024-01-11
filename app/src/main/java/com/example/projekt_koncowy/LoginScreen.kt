@@ -1,6 +1,7 @@
 package com.example.projekt_koncowy
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 class LoginScreen(private val navController: NavHostController) {
@@ -104,13 +108,24 @@ class LoginScreen(private val navController: NavHostController) {
 
     private fun signIn(email: MutableState<String> , password: MutableState<String>) {
         val auth: FirebaseAuth = FirestoreAuth.auth
-        auth.signInWithEmailAndPassword(email.value , password.value).addOnSuccessListener {
-            navController.navigate("friendList")
+        auth.signInWithEmailAndPassword(email.value , password.value)
+            .addOnSuccessListener {
+            FirestoreAuth.currentUserMail = email.value
+                runBlocking {
+                    launch {
+                        val intiNick = async {
+                            FirestoreAuth.setCurrentUserNickFirestore()
+                        }
+                        if(intiNick.await()){
+                            navController.navigate("friendList")
+                        }
+                    }
+                    }
+
             Log.d("LoginScreen" , "signInWithEmail:success")
             Log.d("LoginScreen" , "${auth.currentUser?.email}")
         }.addOnFailureListener {
-            //popup warning to user
-
+            Toast.makeText(navController.context , "Niepoprawne dane" , Toast.LENGTH_SHORT).show()
         }
     }
 

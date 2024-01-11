@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
 object  FirestoreAuth {
     val auth: FirebaseAuth = Firebase.auth
     private val currentUser = auth.currentUser
-    val currentUserMail = getCurrentUserEmailFirestore()
+    var currentUserMail = getCurrentUserEmailFirestore()
     var currentUserNick : String? = null
 
 

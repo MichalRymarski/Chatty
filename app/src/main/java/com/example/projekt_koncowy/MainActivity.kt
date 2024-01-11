@@ -28,6 +28,10 @@ class MainActivity : ComponentActivity() { //init rzeczy
                     FirestoreAuth.setCurrentUserNickFirestore()
                 }
                 if(intiNick.await()){
+
+
+
+
                     setContent {
                         val navController = rememberNavController()
                         NavHost(navController = navController ,

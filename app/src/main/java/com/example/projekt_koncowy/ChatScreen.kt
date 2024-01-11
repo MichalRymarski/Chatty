@@ -1,6 +1,5 @@
 package com.example.projekt_koncowy
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,11 +35,44 @@ import com.google.firebase.ktx.Firebase
 class ChatScreen(private val navController: NavHostController , private var user: String? , private var friend: String) {
 
     private var messageList = mutableStateOf(listOf<String>())
+
     @Composable
     fun StartChatScreenUI() {
-        Log.d("ChatScreen" , "$user $friend")
+
         refreshList()
         ChatScreenUI()
+
+
+    }
+
+
+
+
+    private fun sendMessage(message: String) {
+
+        messageList.value = messageList.value + message
+
+        Firebase.firestore.collection("konwersacje")
+            .document("${user}${friend}")
+            .set(
+                hashMapOf(
+                    "wiadomosci" to messageList.value
+                )
+            )
+    }
+
+    private fun refreshList() {
+        Firebase.firestore.collection("konwersacje")
+            .document("${user}${friend}")
+            .get()
+            .addOnSuccessListener {
+                if (it.exists()) {
+                    messageList.value = it.get("wiadomosci") as List<String>
+                }else{
+                    messageList.value = listOf<String>()
+                }
+            }
+
     }
 
     @Composable
@@ -55,7 +87,7 @@ class ChatScreen(private val navController: NavHostController , private var user
                 .fillMaxSize()
                 .background(Color.White) ,
 
-        ) {
+            ) {
             Column {
                 Row {
                     Button(
@@ -63,14 +95,14 @@ class ChatScreen(private val navController: NavHostController , private var user
                             .weight(1f)
                             .height(50.dp) ,
                         onClick = {
-                        navController.navigate("friendList")
-                    }) {
+                            navController.navigate("friendList")
+                        }) {
                         Icon(
                             modifier = Modifier.fillMaxSize(),
                             painter =  painterResource(id = R.drawable.back),
                             contentDescription = "",
 
-                        )
+                            )
                     }
                     Box(
                         modifier = Modifier
@@ -173,7 +205,7 @@ class ChatScreen(private val navController: NavHostController , private var user
                         .weight(1f)
                         .height(60.dp),
                     onClick = {
-                        if (message.value != "") {
+                        if ( message.value.isNotBlank()) {
                             val temp = "$user: ${message.value}"
                             sendMessage(temp)
                             message.value = ""
@@ -189,39 +221,6 @@ class ChatScreen(private val navController: NavHostController , private var user
             }
 
         }
-    }
-
-    private fun sendMessage(message: String) {
-
-        messageList.value = messageList.value + message
-
-        Firebase.firestore.collection("konwersacje")
-            .whereArrayContainsAny("ziomki" , listOf(user , friend))
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    document.reference.update("wiadomosci" , messageList.value)
-                }
-            }
-    }
-
-    private fun refreshList() {
-        Firebase.firestore.collection("konwersacje")
-            .whereArrayContainsAny("ziomki" , listOf(user , friend))
-            .get()
-            .addOnSuccessListener { documents ->
-                val newawaitingList = mutableListOf<String>()
-                for (document in documents) {
-                    val friendsData = document.data["wiadomosci"]
-                    if (friendsData is List<*>) {
-                        for (data in friendsData) {
-                            newawaitingList.add(data.toString())
-                        }
-                    }
-                }
-                messageList.value = newawaitingList
-            }
-
     }
 
 

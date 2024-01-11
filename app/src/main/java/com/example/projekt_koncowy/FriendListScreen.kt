@@ -1,6 +1,5 @@
 package com.example.projekt_koncowy
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +34,7 @@ class FriendListScreen(private val navController: NavHostController) {
 
     @Composable
     fun FriendListScreenUI() {
+
         Surface(
           modifier = Modifier.fillMaxSize()
         ){
@@ -86,6 +86,7 @@ class FriendListScreen(private val navController: NavHostController) {
                                 .padding(6.dp),
 
                             onClick = {
+
                                 navController.navigate("chat/${FirestoreAuth.currentUserNick}/${contactList.value[index]}")
 
                         }) {
@@ -102,24 +103,10 @@ class FriendListScreen(private val navController: NavHostController) {
 
     private fun refreshList() {
         Firebase.firestore.collection("profile")
-            .whereEqualTo("email", FirestoreAuth.currentUserMail)
+            .document("${FirestoreAuth.currentUserNick}")
             .get()
-            .addOnSuccessListener { documents ->
-                val newContactList = mutableListOf<String>()
-                for (document in documents) {
-                    val friendsData = document.data["friends"]
-                    if (friendsData is List<*>) {
-                        for (data in friendsData) {
-                            newContactList.add(data.toString())
-                        }
-                    }
-                }
-                contactList.value = newContactList
-            }
-            .addOnFailureListener {
-                Log.d("FriendListScreen", "Nie udalo sie pobrac")
-            }.addOnCompleteListener {
-                Log.d("FriendListScreen", "contactList: ${contactList.value}")
+            .addOnSuccessListener {
+                contactList.value = it.get("friends") as List<String>
             }
     }
 

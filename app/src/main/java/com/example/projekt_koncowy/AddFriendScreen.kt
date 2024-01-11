@@ -21,9 +21,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 
 class AddFriendScreen(private val navController: NavHostController) {
 
@@ -103,62 +100,6 @@ class AddFriendScreen(private val navController: NavHostController) {
         }
     }
 
-    private fun addFriend(name: String) {
-
-        val currentUserNick = FirestoreAuth.currentUserNick
-
-
-        if (!checkIfFriendExist(name , currentUserNick) && !isFriendYou(name , currentUserNick)) {
-            val docRef = Firebase.firestore.collection("profile")
-            val FIND_NICK_QUERY = docRef
-                .whereEqualTo("nick" , name)
-                .get()
-                .addOnSuccessListener {
-                    it.documents.map { doc ->
-                        doc.reference.update("oczekujace" , FieldValue.arrayUnion(currentUserNick))
-                    }
-                }
-        }
-    }
-
-
-    private fun checkIfFriendExist(name: String , user: String?): Boolean {
-
-        val nick = FirestoreAuth.currentUserNick
-
-        var flag: Boolean = false
-        Firebase.firestore.collection("profile")
-            .whereEqualTo("email" , FirestoreAuth.currentUserMail)
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    if (document.data["friends"] != null) {
-                        val friends = document.data["friends"] as List<String>
-                        for (friend in friends) {
-                            if (friend == name)
-                                flag = true
-                        }
-                    }
-                    if (document.data["oczekujace"] != null) {
-                        val awaiting = document.data["oczekujace"] as List<String>
-                        for (awaited in awaiting) {
-                            if (awaited == name)
-                                flag = true
-                        }
-                    }
-                }
-            }
-        return flag
-
-    }
-
-    private fun isFriendYou(name: String , user: String?): Boolean {
-        var flag: Boolean = false
-        if (name == user) {
-            flag = true
-        }
-        return flag
-    }
 
 
 }

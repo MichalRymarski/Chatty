@@ -1,5 +1,6 @@
 package com.example.projekt_koncowy
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,9 +20,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 
 class RegistrationScreen(private val navController: NavHostController) {
 
@@ -80,8 +78,11 @@ class RegistrationScreen(private val navController: NavHostController) {
                 Button(
                     modifier = Modifier.padding(16.dp) ,
                     onClick = {
-                        signUp(email , password, nick)
-                        //navigate to conversation screen
+                        if (isSignUpDataCorrect(email , password , nick)) {
+                            signUp(email , password , nick, navController)
+                        }else{
+                            Toast.makeText(navController.context , "Niepoprawne dane" , Toast.LENGTH_SHORT).show()
+                        }
                     }) {
                     Text(text = "Zarejestruj" , fontSize = 20.sp)
                 }
@@ -89,20 +90,17 @@ class RegistrationScreen(private val navController: NavHostController) {
         }
     }
 
+    private fun isSignUpDataCorrect(email: MutableState<String> , password: MutableState<String> , nick: MutableState<String>): Boolean {
+        return listOf(email, password, nick).all { it.value.isNotBlank() } && isValidEmail(email.value) && password.value.length >= 6
+    }
 
-        private fun signUp(email: MutableState<String> , password: MutableState<String>, nick: MutableState<String>) {
-            val auth: FirebaseAuth = FirestoreAuth.auth
-            auth.createUserWithEmailAndPassword(email.value , password.value).addOnSuccessListener {
-                Firebase.firestore.collection("profile")
-                    .add(hashMapOf(
-                        "email" to email.value ,
-                        "password" to password.value,
-                        "nick" to nick.value
-                    ))
-            }.addOnFailureListener {
+    private fun isValidEmail(email: String): Boolean {
+        val emailRegex = """^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$"""
+        return Regex(emailRegex).matches(email)
+    }
 
-            }
-        }
 
 
 }
+
+
